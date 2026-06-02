@@ -40,19 +40,20 @@ pipeline {
                         }
                     }
                 }
+            }
+        }
 
-                stage('Deploy') {
-                    steps {
-                        sh '''
-                            sam build
-                            sam validate --region us-east-1
-                            sam deploy \
-                                --config-env staging \
-                                --no-confirm-changeset \
-                                --no-fail-on-empty-changeset
-                        '''
-                    }
-                }
+        stage('Deploy') {
+            steps {
+                unstash name: 'code'
+                sh '''
+                    sam build
+                    sam validate --region us-east-1
+                    sam deploy \
+                        --config-env staging \
+                        --no-confirm-changeset \
+                        --no-fail-on-empty-changeset
+                '''
             }
         }
     }
