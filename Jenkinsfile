@@ -29,7 +29,7 @@ pipeline {
                 stage('Bandit') {
                     steps {
                         unstash name: 'code'
-                        sh 'bandit --exit-zero -r src -f custom -o bandit.out --severity-level medium --msg-template "{abspath}:{line}: [{test_id}] {msg}"'
+                        sh 'bandit --exit-zero -r src -f custom -o bandit.out --msg-template "{abspath}:{line}: [{test_id}({severity})] {msg}"'
                         recordIssues(
                             tools:[pyLint(name: 'Bandit', pattern: 'bandit.out')]
                         )
