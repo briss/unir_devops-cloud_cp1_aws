@@ -59,7 +59,6 @@ pipeline {
 
         stage('Rest Test') {
             steps {
-                unstash name: 'code'
                 script {
                     def baseUrl = sh(
                         script: '''
