@@ -84,6 +84,7 @@ pipeline {
                         usernameVariable: 'GIT_USER',
                         passwordVariable: 'GIT_TOKEN')
                 ]) {
+                    unstash name: 'code'
                     sh '''
                         git config user.email "jenkins@bgs.dev"
                         git config user.name "Jenkins"
@@ -91,6 +92,11 @@ pipeline {
                         git merge develop
                         git push https://${GIT_USER}:${GIT_TOKEN}@github.com/briss/unir_devops-cloud_cp1_aws.git master
                     '''
+                }
+            }
+            post {
+                always {
+                    deleteDir()
                 }
             }
         }
