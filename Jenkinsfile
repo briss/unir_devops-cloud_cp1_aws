@@ -76,5 +76,23 @@ pipeline {
                 junit 'result-rest.xml'
             }
         }
+
+        stage('Promote') {
+            steps {
+                withCredentials([
+                    usernamePassword(credentialsId: 'github-credentials-devopscloud',
+                        usernameVariable: 'GIT_USER',
+                        passwordVariable: 'GIT_TOKEN')
+                ]) {
+                    sh '''
+                        git config user.email "jenkins@bgs.dev"
+                        git config user.name "Jenkins"
+                        git checkout master
+                        git merge develop
+                        git push https://${GIT_USER}:${GIT_TOKEN}@github.com/briss/unir_devops-cloud_cp1_aws.git master
+                    '''
+                }
+            }
+        }
     }
 }
