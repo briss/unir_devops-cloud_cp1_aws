@@ -56,5 +56,26 @@ pipeline {
                 '''
             }
         }
+
+        stage('Rest Test') {
+            steps {
+                unstash name: 'code'
+                script {
+                    def baseUrl = sh(
+                        script: '''
+                            aws cloudformation describe-stacks \
+                                --stack-name todo-list-aws-staging \
+                                --query 'Stacks[0].Outputs[?OutputKey==`BaseUrlApi`].OutputValue' \
+                                --region us-east-1 \
+                                --output text
+                        ''',
+                        returnStdout: true
+                    ).trim()
+
+                    sh "BASE_URL=${baseUrl} pytest --junitxml=result-rest.xml test/integration/todoApiTest.py -v"
+                }
+                junit 'result-rest.xml'
+            }
+        }
     }
 }
