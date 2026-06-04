@@ -12,7 +12,7 @@ pipeline {
             parallel {
                 stage('Flake8') {
                     steps {
-                        sh 'flake8 --format=pylint --exit-zero src > flake8.out'
+                        sh 'flake8 --format=pylint --exit-zero src --output-file flake8.out'
                         recordIssues(
                             tools:[flake8(name: 'Flake8', pattern: 'flake8.out')],
                             qualityGates: [
