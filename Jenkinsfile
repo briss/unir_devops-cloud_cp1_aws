@@ -14,7 +14,10 @@ pipeline {
                     steps {
                         sh 'flake8 --format=pylint --exit-zero src > flake8.out'
                         recordIssues(
-                            tools:[flake8(name: 'Flake8', pattern: 'flake8.out')]
+                            tools:[flake8(name: 'Flake8', pattern: 'flake8.out')],
+                            qualityGates: [
+                                [threshold: 10, type: 'TOTAL', unstable: true]
+                            ]
                         )
                     }
                 }
@@ -23,7 +26,10 @@ pipeline {
                     steps {
                         sh 'bandit --exit-zero -r src -f custom -o bandit.out --msg-template "{abspath}:{line}: [{test_id}({severity})] {msg}"'
                         recordIssues(
-                            tools:[pyLint(name: 'Bandit', pattern: 'bandit.out')]
+                            tools:[pyLint(name: 'Bandit', pattern: 'bandit.out')],
+                            qualityGates: [
+                                [threshold: 4, type: 'TOTAL', unstable: true]
+                            ]
                         )
                     }
                 }
