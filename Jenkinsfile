@@ -82,6 +82,7 @@ pipeline {
                         git checkout master
                         git merge develop --strategy-option=ours --no-commit
                         git checkout master -- Jenkinsfile
+                        git checkout master -- Jenkinsfile_agentes
                         git commit -m "Merge develop into master"
                         git push https://${GIT_USER}:${GIT_TOKEN}@github.com/briss/unir_devops-cloud_cp1_aws.git master
                     '''
