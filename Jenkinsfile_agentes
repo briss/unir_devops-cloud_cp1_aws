@@ -33,6 +33,11 @@ pipeline {
                             ]
                         )
                     }
+                    post {
+                        always {
+                            deleteDir()
+                        }
+                    }
                 }
 
                 stage('Bandit') {
@@ -48,11 +53,11 @@ pipeline {
                             ]
                         )
                     }
-                }
-            }
-            post {
-                always {
-                    deleteDir()
+                    post {
+                        always {
+                            deleteDir()
+                        }
+                    }
                 }
             }
         }
