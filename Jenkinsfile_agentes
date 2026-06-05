@@ -19,12 +19,12 @@ pipeline {
         }
 
         stage('Static Tests') {
-	        agent { label 'static-test' }
-            steps {
-                printAgentInfo()
-                unstash name: 'code'
-                parallel (
-                    'Flake8': {
+            parallel {
+                stage('Flake8') {
+        	        agent { label 'static-test' }
+                    steps {
+                        printAgentInfo()
+                        unstash name: 'code'
                         sh 'flake8 --format=pylint --exit-zero src --output-file flake8.out'
                         recordIssues(
                             tools:[flake8(name: 'Flake8', pattern: 'flake8.out')],
@@ -32,9 +32,14 @@ pipeline {
                                 [threshold: 10, type: 'TOTAL', unstable: true]
                             ]
                         )
-                    },
+                    }
+                }
 
-                    'Bandit': {
+                stage('Bandit') {
+        	        agent { label 'static-test' }
+                    steps {
+                        printAgentInfo()
+                        unstash name: 'code'
                         sh 'bandit --exit-zero -r src -f custom -o bandit.out --msg-template "{abspath}:{line}: [{test_id}({severity})] {msg}"'
                         recordIssues(
                             tools:[pyLint(name: 'Bandit', pattern: 'bandit.out')],
@@ -43,7 +48,7 @@ pipeline {
                             ]
                         )
                     }
-                )
+                }
             }
             post {
                 always {
