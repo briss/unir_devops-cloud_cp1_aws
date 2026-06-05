@@ -23,10 +23,8 @@ pipeline {
             steps {
                 printAgentInfo()
                 unstash name: 'code'
-            }
-            parallel {
-                stage('Flake8') {
-                    steps {
+                parallel (
+                    'Flake8': {
                         sh 'flake8 --format=pylint --exit-zero src --output-file flake8.out'
                         recordIssues(
                             tools:[flake8(name: 'Flake8', pattern: 'flake8.out')],
@@ -34,11 +32,9 @@ pipeline {
                                 [threshold: 10, type: 'TOTAL', unstable: true]
                             ]
                         )
-                    }
-                }
+                    },
 
-                stage('Bandit') {
-                    steps {
+                    'Bandit': {
                         sh 'bandit --exit-zero -r src -f custom -o bandit.out --msg-template "{abspath}:{line}: [{test_id}({severity})] {msg}"'
                         recordIssues(
                             tools:[pyLint(name: 'Bandit', pattern: 'bandit.out')],
@@ -47,7 +43,7 @@ pipeline {
                             ]
                         )
                     }
-                }
+                )
             }
             post {
                 always {
