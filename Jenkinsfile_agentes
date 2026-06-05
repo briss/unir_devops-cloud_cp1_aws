@@ -1,0 +1,72 @@
+def printAgentInfo() {
+    sh 'whoami'
+    sh 'hostname'
+    echo "Node Name: ${env.NODE_NAME}"
+}
+
+pipeline {
+    agent none
+
+    stages {
+
+        stage('Get Code') {
+            agent { label 'built-in' }
+            steps {
+                printAgentInfo()
+                git branch: 'master', url: 'https://github.com/briss/unir_devops-cloud_cp1_aws.git'
+                stash name: 'code', includes: '**'
+            }
+        }
+
+        stage('Deploy') {
+			agent { label 'built-in' }
+            steps {
+                printAgentInfo()
+                unstash name: 'code'
+                sh '''
+                    sam build
+                    sam validate --region us-east-1
+                    sam deploy \
+                        --config-env production \
+                        --no-confirm-changeset \
+                        --no-fail-on-empty-changeset
+                '''
+            }
+        }
+
+        stage('Rest Test') {
+			agent { label 'rest-test' }
+            steps {
+                printAgentInfo()
+                unstash name: 'code'
+                script {
+                    def baseUrl = sh(
+                        script: '''
+                            aws cloudformation describe-stacks \
+                                --stack-name todo-list-aws-production \
+                                --query 'Stacks[0].Outputs[?OutputKey==`BaseUrlApi`].OutputValue' \
+                                --region us-east-1 \
+                                --output text
+                        ''',
+                        returnStdout: true
+                    ).trim()
+
+                    sh "BASE_URL=${baseUrl} pytest --junitxml=result-rest.xml test/integration/todoApiTest.py -v -m readonly"
+                }
+                junit 'result-rest.xml'
+            }
+            post {
+                always {
+                    deleteDir()
+                }
+            }
+        }
+    }
+    post {
+        always {
+            node('built-in') {
+                deleteDir()
+            }
+        }
+    }
+}
