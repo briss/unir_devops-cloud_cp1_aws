@@ -81,6 +81,7 @@ pipeline {
                         git config user.email "jenkins@bgs.dev"
                         git config user.name "Jenkins"
                         git config merge.ours.driver true
+                        git fetch origin master:master
                         git checkout master
                         git merge develop
                         git push https://${GIT_USER}:${GIT_TOKEN}@github.com/briss/unir_devops-cloud_cp1_aws.git master
