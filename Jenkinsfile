@@ -80,11 +80,9 @@ pipeline {
                     sh '''
                         git config user.email "jenkins@bgs.dev"
                         git config user.name "Jenkins"
+                        git config merge.ours.driver true
                         git checkout master
-                        git merge develop --no-commit --no-ff
-                        git checkout master -- Jenkinsfile
-                        git checkout master -- Jenkinsfile_agentes
-                        git commit -m "Merge develop into master"
+                        git merge develop
                         git push https://${GIT_USER}:${GIT_TOKEN}@github.com/briss/unir_devops-cloud_cp1_aws.git master
                     '''
                 }
