@@ -5,6 +5,7 @@ pipeline {
         stage('Get Code') {
             steps {
                 git branch: 'master', url: 'https://github.com/briss/unir_devops-cloud_cp1_aws.git'
+                sh 'curl -o samconfig.toml https://raw.githubusercontent.com/briss/unir_devops-cloud_cp1_aws_config/production/samconfig.toml'
             }
         }
 
